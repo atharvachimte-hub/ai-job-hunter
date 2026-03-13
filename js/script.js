@@ -12,10 +12,48 @@ function logoutUser() {
   window.location.href = "login.html";
 }
 
+function isProtectedPage() {
+  const protectedPages = ["dashboard.html", "jobs.html", "walkin.html", "resume.html"];
+  const currentPage = window.location.pathname.split("/").pop() || "index.html";
+  return protectedPages.includes(currentPage);
+}
+
+function renderDynamicNav() {
+  const nav = document.getElementById("dynamicNav");
+  if (!nav) return;
+
+  const currentUser = getUserSession();
+  const currentPage = window.location.pathname.split("/").pop() || "index.html";
+
+  if (currentUser) {
+    nav.innerHTML = `
+      <a href="dashboard.html" class="${currentPage === "dashboard.html" ? "active" : ""}">Dashboard</a>
+      <a href="jobs.html" class="${currentPage === "jobs.html" ? "active" : ""}">Jobs</a>
+      <a href="walkin.html" class="${currentPage === "walkin.html" ? "active" : ""}">Walk-in</a>
+      <a href="resume.html" class="${currentPage === "resume.html" ? "active" : ""}">Resume</a>
+      <a href="pricing.html" class="${currentPage === "pricing.html" ? "active" : ""}">Pricing</a>
+      <button class="btn btn-outline small-btn" onclick="logoutUser()">Logout</button>
+    `;
+  } else {
+    nav.innerHTML = `
+      <a href="index.html" class="${currentPage === "index.html" ? "active" : ""}">Home</a>
+      <a href="pricing.html" class="${currentPage === "pricing.html" ? "active" : ""}">Pricing</a>
+      <a href="login.html" class="btn btn-outline small-btn">Login</a>
+    `;
+  }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   const signupForm = document.getElementById("signupForm");
   const loginForm = document.getElementById("loginForm");
   const resumeForm = document.getElementById("resumeForm");
+
+  if (isProtectedPage() && !getUserSession()) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  renderDynamicNav();
 
   if (signupForm) {
     signupForm.addEventListener("submit", function (e) {
